@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Habit Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f7f6f3;--sf:#fff;--tx:#17181a;--mu:#6a6d72;--bd:#e7e5e0;--ac:#1f5c45;--acs:#e8f1ec;--ok:#2f7d52;--okb:#e4f1e9;--no:#b5483f;--nob:#f6e6e3;--td:#f3efe0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101311;--sf:#171b19;--tx:#ecefed;--mu:#9aa39e;--bd:#262c29;--ac:#5fb58d;--acs:#1a2a23;--ok:#6cc596;--okb:#18302a;--no:#e08a80;--nob:#33201e;--td:#2a2815;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101311;--sf:#171b19;--tx:#ecefed;--mu:#9aa39e;--bd:#262c29;--ac:#5fb58d;--acs:#1a2a23;--ok:#6cc596;--okb:#18302a;--no:#e08a80;--nob:#33201e;--td:#2a2815;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+#nav{position:fixed;left:0;top:0;bottom:0;width:216px;padding:calc(20px + env(safe-area-inset-top,0px)) 12px 20px;border-right:1px solid var(--bd);background:var(--sf)}
+.brand{font-weight:600;letter-spacing:.14em;font-size:.8rem;padding:4px 10px 20px}
+.brand i{color:var(--ac);font-style:normal}
+#navl{display:flex;flex-direction:column;gap:2px}
+.nv{display:flex;align-items:center;gap:10px;background:none;border:0;border-radius:8px;padding:9px 10px;color:var(--mu);cursor:pointer;font-size:.9rem;text-align:left;position:relative}
+.nv:hover{background:var(--bg);color:var(--tx)}.nv.on{color:var(--tx);background:var(--bg);font-weight:500}
+.nv.on::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--ac)}
+.nv svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+main{margin-left:216px;max-width:1160px;padding:32px 40px 64px}
+.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:32px}
+h1{font-size:2rem;line-height:1.15;margin:0;font-weight:600;letter-spacing:-.02em}
+h2{font-size:1.15rem;font-weight:600;margin:40px 0 14px;letter-spacing:-.01em}
+h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin:22px 0 10px;font-weight:500}
+.mu{color:var(--mu);font-size:.875rem}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.btn{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;cursor:pointer;min-height:40px;transition:border-color .12s}
+.btn:hover{border-color:var(--ac)}.btn.pri{background:var(--ac);border-color:var(--ac);color:var(--sf)}.btn.dng{color:var(--no)}.btn.dng:hover{border-color:var(--no)}
+input[type=text],input[type=date],select{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;min-height:40px}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr);gap:40px;align-items:end;padding-bottom:28px;border-bottom:1px solid var(--bd)}
+.lb{font-size:.875rem;color:var(--mu)}
+.big{font-size:4rem;line-height:1.05;font-weight:600;letter-spacing:-.03em;color:var(--ac)}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.kp div{border-left:1px solid var(--bd);padding-left:16px}
+.kp b,.stat b{display:block;font-size:1.75rem;font-weight:600;letter-spacing:-.02em;line-height:1.2}
+.act{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:24px;padding:16px 18px;background:var(--acs);border-radius:10px}
+.act b{display:block}.act .ctl{gap:6px}
+.qr{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)}
+.wrap{overflow-x:auto;max-width:100%;border-top:1px solid var(--bd)}
+table{border-collapse:separate;border-spacing:0}
+th,td{padding:6px 3px;text-align:center;background:var(--bg);border-bottom:1px solid var(--bd);font-weight:400}
+th.h,td.h{position:sticky;left:0;z-index:2;text-align:left;min-width:168px;max-width:168px;padding-right:12px;font-weight:500;background:var(--bg);box-shadow:1px 0 0 var(--bd)}
+th.d{min-width:46px}th.d.dd{min-width:116px}
+.dn{font-weight:600;font-size:.95rem}.dm{font-size:.75rem;color:var(--mu)}
+th.d input{width:108px;min-height:32px;padding:4px 6px;font-size:.8rem}
+th.today,td.today{background:var(--td)}th.today{box-shadow:inset 0 -2px var(--ac)}th.future .dn{color:var(--mu)}
+.c{width:34px;height:34px;border-radius:8px;border:1px solid transparent;background:none;color:var(--mu);cursor:pointer;font-size:1rem;transition:background .1s}
+.c:hover:not(:disabled){background:var(--sf);border-color:var(--bd)}
+.c.y{background:var(--okb);color:var(--ok);font-weight:600}.c.n{background:var(--nob);color:var(--no);font-weight:600}
+.c:disabled{opacity:.3;cursor:not-allowed}
+.cv{position:relative;height:300px}.cv.s{height:220px}
+.two{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:48px}
+.rk{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 52px 48px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.9rem}
+.rk .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{height:6px;border-radius:3px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.rk.low .bar i{background:var(--no)}.rk b{text-align:right;font-weight:600}.rk .mu{text-align:right}
+.sm{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd)}.sm b{font-weight:600}
+.grid{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.stat{padding-left:16px;border-left:1px solid var(--bd)}
+#err,.ban{display:none;border-radius:10px;padding:10px 14px;margin-bottom:16px}
+#err{background:var(--nob);color:var(--no)}
+.ban{background:var(--td);align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.ft{margin-top:12px}
+dialog{background:var(--sf);color:var(--tx);border:1px solid var(--bd);border-radius:14px;max-width:560px;width:calc(100% - 24px);padding:24px;max-height:90vh}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{margin:0 0 4px}
+.hr{display:flex;gap:6px;align-items:center;margin-bottom:6px}.hr input{flex:1;min-width:0}.hr .btn{padding:4px 10px;min-height:36px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.sv{font-size:.85rem;color:var(--mu)}.sv.ok{color:var(--ok)}.sv.bad{color:var(--no)}
+.tabrow{display:flex;align-items:center;gap:8px;margin:-12px 0 24px;border-bottom:1px solid var(--bd)}
+.tabs{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;color:var(--mu);cursor:pointer;white-space:nowrap;font-size:.9rem;margin-bottom:-1px}
+.tab:hover{color:var(--tx)}.tab.on{color:var(--tx);border-color:var(--ac);font-weight:500}
+.tabrow select{min-height:36px;max-width:120px;font-size:.85rem}
+.ib{background:none;border:1px solid var(--bd);border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:1.1rem;flex:none}.ib:hover{border-color:var(--ac)}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.seg button{background:var(--sf);border:0;padding:8px 14px;cursor:pointer;min-height:38px}
+.seg button.on{background:var(--ac);color:var(--sf);font-weight:500}.seg button:disabled{opacity:.4;cursor:not-allowed}
+.fld{margin-bottom:14px;display:flex;flex-direction:column;gap:6px}.fld label,.lab{font-size:.85rem;color:var(--mu)}
+textarea{background:var(--sf);color:inherit;border:1px solid var(--bd);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical}
+input[type=number],input[type=month]{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;min-height:40px}
+@media (max-width:899px){
+ #nav{top:auto;width:auto;right:0;border-right:0;border-top:1px solid var(--bd);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:20}
+ .brand{display:none}#navl{flex-direction:row;justify-content:space-around}
+ .nv{flex-direction:column;gap:2px;font-size:.75rem;padding:6px 8px;flex:1;align-items:center}.nv.on::before{display:none}.nv.on{color:var(--ac)}
+ main{margin-left:0;padding:20px 16px calc(96px + env(safe-area-inset-bottom,0px))}
+ h1{font-size:1.6rem}.hero{grid-template-columns:1fr;gap:24px}.big{font-size:3.2rem}.two{grid-template-columns:1fr;gap:8px}.kp{gap:12px}.kp b{font-size:1.4rem}
+ .top{margin-bottom:20px}
+}
+</style>
+</head>
+<body>
+<aside id="nav"><div class="brand">ANJAN <i>OS</i></div><nav id="navl" aria-label="Main"></nav></aside>
+<main>
+<header class="top">
+ <div><h1 id="title"></h1><div class="mu" id="sub"></div></div>
+ <div class="ctl"><span id="sv" class="sv" role="status" aria-live="polite"></span><button class="btn" id="retry" hidden>Retry</button><div class="seg" id="calseg" role="group" aria-label="Calendar system"><button data-cal="AD">AD</button><button data-cal="BS">BS</button></div></div>
+</header>
+<div class="tabrow"><div class="tabs" id="tabs" role="tablist" aria-label="Trackers"></div><select id="sel" aria-label="More periods"></select><button class="ib" id="add" aria-label="Create tracker" title="New tracker">+</button><button class="ib" id="more" aria-label="Tracker menu" title="Tracker menu">⋯</button></div>
+<div id="err" role="alert"></div>
+
+<section class="pg" data-pg="overview">
+ <div class="hero">
+  <div><div class="lb">Completion rate</div><div class="big" id="big"></div><div class="mu" id="trend"></div></div>
+  <div class="kp" id="kpis"></div>
+ </div>
+ <div class="act" id="act" hidden></div>
+ <h2>Today</h2><div id="quick"></div>
+</section>
+
+<section class="pg" data-pg="tracker">
+ <div class="ban" id="ban"></div>
+ <div class="wrap"><table id="tbl"></table></div>
+ <div class="ft mu">✓ completed · ✗ not completed · – not recorded. Future days are locked and never counted.</div>
+</section>
+
+<section class="pg" data-pg="performance">
+ <div class="cv"><canvas id="c1"></canvas></div>
+ <div class="two">
+  <div><h2>Habit consistency</h2><div id="rank"></div></div>
+  <div><h2>Summary</h2><div id="sum"></div><p class="mu" id="half"></p></div>
+ </div>
+ <h2>Cumulative completions</h2><div class="cv s"><canvas id="c3"></canvas></div>
+ <p class="mu">Rate = ✓ ÷ (✓ + ✗). Unrecorded and future cells are excluded. A full-completion day needs all 10 habits ✓.</p>
+</section>
+
+<section class="pg" data-pg="history">
+ <div class="cv"><canvas id="c4"></canvas></div>
+ <div class="grid" id="agg" style="margin-top:24px"></div>
+ <h2>Months</h2><div class="wrap"><table id="mtbl"></table></div>
+ <h2>Compare two months</h2>
+ <div class="ctl"><select id="ca" aria-label="Month A"></select><span class="mu">vs</span><select id="cb" aria-label="Month B"></select></div>
+ <p id="cmp"></p>
+</section>
+</main>
+
+<dialog id="cdlg">
+ <h2>New tracker</h2>
+ <div class="fld"><label for="cn">Name</label><input type="text" id="cn" maxlength="40" placeholder="Optional, e.g. 7-Day Discipline Challenge"></div>
+ <div class="fld"><span class="lab">Calendar</span><div class="seg" id="ccal"><button data-c="AD">AD · Gregorian</button><button data-c="BS">BS · Bikram Sambat</button></div></div>
+ <div class="fld"><span class="lab">Duration</span><div class="seg" id="cmode"><button data-m="month">Calendar month</button><button data-m="custom">Custom days</button></div></div>
+ <div class="fld" id="fad"><label for="adi">Start date (AD)</label><input type="date" id="adi"></div>
+ <div class="fld" id="fadm"><label for="adm">Month (AD)</label><input type="month" id="adm"></div>
+ <div class="fld" id="fbs"><span class="lab">Start date (BS, Bikram Sambat)</span><div class="ctl"><select id="bsy" aria-label="BS year"></select><select id="bsm" aria-label="BS month"></select><select id="bsd" aria-label="BS day"></select></div></div>
+ <div class="fld" id="fdays"><label for="cd">Number of days (1–366)</label><input type="number" id="cd" min="1" max="366" step="1" value="7" inputmode="numeric"></div>
+ <div class="fld"><label for="ch">Habits: exactly 10, one per line</label><textarea id="ch" rows="10"></textarea><span class="mu">Names only are copied. No marks or history carry over.</span></div>
+ <p class="mu" id="cprev"></p><p id="cerr" style="color:var(--no);margin:0 0 8px"></p>
+ <div class="row" style="justify-content:flex-end"><button class="btn" id="ccan">Cancel</button><button class="btn pri" id="cok">Create tracker</button></div>
+</dialog>
+<dialog id="idlg"><h2>Data integrity</h2><div id="ibody"></div><div class="row" style="justify-content:flex-end"><button class="btn" id="irun">Re-run</button><button class="btn pri" id="icl">Close</button></div></dialog>
+<dialog id="mdlg"><h2 id="mt">Tracker</h2><div id="mb"></div><div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn" id="mcl">Close</button></div></dialog>
+<dialog id="dlg">
+ <h2>Settings</h2>
+ <h3>Habits · <span id="dt"></span></h3>
+ <div id="hl"></div>
+ <p class="mu">Edits apply to the period you are viewing. Rename keeps history; “New” starts a fresh history for a different habit.</p>
+ <div class="row"><button class="btn" id="defs">Restore default habits</button></div>
+ <h3>Tracking period</h3>
+ <label class="mu">32-day custom period start <input type="date" id="start"></label>
+ <h3>Appearance</h3>
+ <select id="theme" aria-label="Theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select>
+ <h3>Data</h3>
+ <div class="row"><button class="btn" id="exp">Export all JSON</button><label class="btn" style="display:inline-flex;align-items:center">Import JSON<input type="file" id="imp" accept="application/json" hidden></label></div>
+ <div class="row"><button class="btn" id="chk">Integrity check, history &amp; snapshots</button></div>
+ <h3>Reset</h3>
+ <div class="row"><button class="btn dng" id="rst">Reset this period</button></div>
+ <div class="row" style="margin-top:24px;justify-content:flex-end"><button class="btn pri" id="cls">Done</button></div>
+</dialog>
+
+<script id="config" type="application/json">
+{"rev":1,"tz":"","habits":[
+{"id":"h1","name":"Wake up on time"},
+{"id":"h2","name":"Meditation"},
+{"id":"h3","name":"Market analysis"},
+{"id":"h4","name":"Trading / practice"},
+{"id":"h5","name":"Backtesting"},
+{"id":"h6","name":"School study"},
+{"id":"h7","name":"Revision"},
+{"id":"h8","name":"Post-session journal"},
+{"id":"h9","name":"Avoid unnecessary scrolling"},
+{"id":"h10","name":"Daily review / journaling"}]}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nepali-date-converter@3.4.0/dist/nepali-date-converter.umd.js"></script>
+<script>
+const CONFIG = JSON.parse(document.getElementById('config').textContent);
+const KEY = 'habit32.v2', OLD = 'habit32.v1';
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const iso = d => d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
+const addDays = (s, n) => { const d = new Date(s + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
+const validDate = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && iso(new Date(s + 'T00:00:00Z')) === s;
+const YM = /^\d{4}-(0[1-9]|1[0-2])$/;
+const dim = ym => new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5), 0)).getUTCDate();
+const ymAdd = (ym, n) => iso(new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5) - 1 + n, 1))).slice(0, 7);
+const label = ym => new Date(ym + '-01T00:00:00Z').toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const clone = o => JSON.parse(JSON.stringify(o));
+const qs = new URLSearchParams(location.search).get('today');
+const today = () => { if (qs && validDate(qs)) return qs; try { return new Date().toLocaleDateString('en-CA', { timeZone: CONFIG.tz || undefined }); } catch (e) { return new Date().toLocaleDateString('en-CA'); } };
+const curYm = () => today().slice(0, 7);
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = p => p == null ? 'No data' : p.toFixed(1) + '%';
+
+let S, P, M, editOn = false, cmpA, cmpB;
+const customOf = (start, habits, rec) => ({ kind: 'c', id: 'custom', start, habits, rec });
+function fresh() { return { v: 2, cal: 'AD', trackers: [], view: null, lastYm: null, rev: CONFIG.rev, habits: clone(CONFIG.habits), months: {}, custom: customOf(today(), clone(CONFIG.habits), {}) }; }
+function showErr(m) { const e = $('err'); e.textContent = m; e.style.display = m ? 'block' : 'none'; }
+const AK = 'habit32.audit', SNK = 'habit32.snap.';
+let db = null, curVer = 0, pend = [], flushing = null;
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+function ev(type, p, x) { return Object.assign({ id: uid(), type, tracker: p ? p.id : null, ts: new Date().toISOString() }, x || {}); }
+function A(e) { pend.push(e); }
+function setSV(st, msg) {
+  const el = $('sv'); if (!el) return;
+  el.textContent = st === 'saving' ? 'Saving…' : st === 'saved' ? 'Saved · ' + (db ? 'this browser (IndexedDB)' : 'this browser only (fallback)') : st === 'failed' ? 'Save failed: ' + (msg || 'unknown error') : st === 'conflict' ? 'Changed in another tab' : '';
+  el.className = 'sv' + (st === 'saved' ? ' ok' : st === 'failed' || st === 'conflict' ? ' bad' : '');
+  const r = $('retry'); r.hidden = !(st === 'failed' || st === 'conflict'); r.textContent = st === 'conflict' ? 'Reload' : 'Retry';
+  window.__sv = st;
+}
+function openDB() { return new Promise((res, rej) => { const r = window.indexedDB.open('habit-os', 1); r.onupgradeneeded = () => { const d = r.result; d.createObjectStore('state'); d.createObjectStore('audit', { keyPath: 'id' }); d.createObjectStore('snap', { keyPath: 'id' }); }; r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); r.onblocked = () => rej(new Error('database blocked')); }); }
+function writeTx(data, evs, base) {
+  return new Promise((res, rej) => {
+    let conflict = false; const t = db.transaction(['state', 'audit'], 'readwrite'), g = t.objectStore('state').get('main');
+    g.onsuccess = () => { const cur = g.result; if (cur && cur.ver !== base) { conflict = true; t.abort(); return; } t.objectStore('state').put({ ver: base + 1, data, ts: Date.now() }, 'main'); evs.forEach(e => t.objectStore('audit').put(e)); };
+    t.oncomplete = () => res(base + 1);
+    t.onabort = () => rej(conflict ? Object.assign(new Error('conflict'), { conflict: true }) : (t.error || new Error('transaction aborted')));
+  });
+}
+function save() {
+  S.saved = Date.now(); let ok = true;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { ok = false; }
+  setSV('saving');
+  if (!db) {
+    try { if (pend.length) { const a = JSON.parse(localStorage.getItem(AK) || '[]'), ids = new Set(a.map(x => x.id)); pend.forEach(e => { if (!ids.has(e.id)) a.push(e); }); localStorage.setItem(AK, JSON.stringify(a)); pend = []; } } catch (e) { ok = false; }
+    if (ok) setSV('saved'); else setSV('failed', 'browser storage is unavailable or full. Export a backup now.');
+    return Promise.resolve(ok);
+  }
+  return flush();
+}
+function flush() {
+  if (flushing) { flushing.again = true; return flushing.p; }
+  const job = { again: false };
+  job.p = (async () => {
+    try {
+      do { job.again = false; const evs = pend.slice(), data = JSON.parse(JSON.stringify(S)); curVer = await writeTx(data, evs, curVer); pend = pend.filter(e => !evs.includes(e)); if (bc) bc.postMessage('w'); } while (job.again);
+      setSV('saved'); return true;
+    } catch (e) { if (e && e.conflict) setSV('conflict'); else setSV('failed', e && e.message); return false; }
+    finally { flushing = null; }
+  })();
+  flushing = job; return job.p;
+}
+const bc = window.BroadcastChannel ? new BroadcastChannel('habit-os') : null;
+if (bc) bc.onmessage = () => { if (!flushing) setSV('conflict'); };
+function snap(reason, state) {
+  const rec = { id: 's' + Date.now().toString(36) + uid().slice(0, 4), ts: new Date().toISOString(), reason, state: JSON.parse(JSON.stringify(state || S)) };
+  if (!db) return new Promise((res, rej) => { try { localStorage.setItem(SNK + rec.id, JSON.stringify(rec)); res(rec); } catch (e) { rej(e); } });
+  return new Promise((res, rej) => { const t = db.transaction('snap', 'readwrite'); t.objectStore('snap').put(rec); t.oncomplete = () => res(rec); t.onabort = () => rej(t.error || new Error('snapshot failed')); });
+}
+const listSnaps = () => !db ? Promise.resolve([]) : new Promise((res, rej) => { const r = db.transaction('snap').objectStore('snap').getAll(); r.onsuccess = () => res(r.result.sort((a, b) => a.ts < b.ts ? 1 : -1)); r.onerror = () => rej(r.error); });
+function auditAll() {
+  if (!db) { try { return Promise.resolve(JSON.parse(localStorage.getItem(AK) || '[]')); } catch (e) { return Promise.resolve([]); } }
+  return new Promise((res, rej) => { const r = db.transaction('audit').objectStore('audit').getAll(); r.onsuccess = () => res(r.result.sort((a, b) => a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0)); r.onerror = () => rej(r.error); });
+}
+async function boot() {
+  let rec = null;
+  try { db = await openDB(); rec = await new Promise((res, rej) => { const r = db.transaction('state').objectStore('state').get('main'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+  catch (e) { db = null; showErr('IndexedDB unavailable (' + (e && e.message) + '). Using the localStorage fallback; export backups often.'); }
+  curVer = rec ? rec.ver : 0;
+  if (db && !rec) { try { const raw = localStorage.getItem(KEY) || localStorage.getItem(OLD); if (raw) await snap('pre-migration', JSON.parse(raw)); } catch (e) { showErr('Could not create a pre-migration snapshot: ' + e.message); } A(ev('storage_migrated', null, {})); }
+  load(rec);
+  if (!rec || S.saved !== (rec.data && rec.data.saved)) await save(); else if (!flushing) setSV('saved');
+  render();
+}
+const cells = s => { let n = 0; const f = p => Object.values(p.rec).forEach(r => n += Object.keys(r).length); Object.values(s.months).forEach(f); f(s.custom); s.trackers.forEach(f); return n; };
+const counts = (s, a) => ({ months: Object.keys(s.months).length, trackers: s.trackers.length, recordedCells: cells(s), auditEvents: a });
+async function buildBackup() { const audit = await auditAll(); return { format: 'habit-os-backup', version: 3, exported: new Date().toISOString(), counts: counts(S, audit.length), state: JSON.parse(JSON.stringify(S)), audit }; }
+function parseBackup(text) {
+  const o = JSON.parse(text), raw = o && o.format === 'habit-os-backup' ? o : { state: o, audit: [] };
+  if (raw.format && raw.version > 3) throw new Error('backup version ' + raw.version + ' is newer than this app supports');
+  const st = valid(raw.state); if (!st) throw new Error('state failed validation');
+  const seen = new Set(), audit = [];
+  for (const e of (Array.isArray(raw.audit) ? raw.audit : [])) { if (!e || typeof e.id !== 'string' || typeof e.type !== 'string' || typeof e.ts !== 'string' || isNaN(Date.parse(e.ts))) throw new Error('audit log contains a malformed event'); if (!seen.has(e.id)) { seen.add(e.id); audit.push(e); } }
+  return { st, audit, exported: raw.exported || 'unknown' };
+}
+async function restore(pb, reason) {
+  await snap('pre-' + reason);
+  if (db) await new Promise((res, rej) => { const t = db.transaction('audit', 'readwrite'); pb.audit.forEach(e => t.objectStore('audit').put(e)); t.oncomplete = res; t.onabort = () => rej(t.error || new Error('audit import failed')); });
+  else { const a = JSON.parse(localStorage.getItem(AK) || '[]'), ids = new Set(a.map(x => x.id)); pb.audit.forEach(e => { if (!ids.has(e.id)) a.push(e); }); localStorage.setItem(AK, JSON.stringify(a)); }
+  S = pb.st; editOn = false; A(ev('restore', null, Object.assign({ reason }, counts(S, pb.audit.length)))); tick(true); await save(); render();
+}
+async function integrity() {
+  const issues = [], info = [], pds = [...Object.values(S.months), S.custom, ...S.trackers], ids = new Set();
+  S.trackers.forEach(t => { if (ids.has(t.id)) issues.push('Duplicate tracker id ' + t.id); ids.add(t.id); });
+  for (const p of pds) {
+    const n = nDays(p), nm = shortTitle(p), hs = new Set(p.habits.map(h => h.id));
+    if (hs.size !== p.habits.length) issues.push(nm + ': duplicate habit ids');
+    for (const [h, r] of Object.entries(p.rec)) { if (!hs.has(h)) issues.push(nm + ': records reference unknown habit ' + h); for (const [i, v] of Object.entries(r)) { if (!(+i >= 0 && +i < n)) issues.push(nm + ': day index ' + i + ' is outside the period'); if (v !== 0 && v !== 1) issues.push(nm + ': invalid status for habit ' + h); } }
+  }
+  if (!(S.view === 'custom' || YM.test(S.view || '') || ((S.view || '').startsWith('tr:') && ids.has(S.view.slice(3))))) issues.push('Selected view does not exist');
+  const a = await auditAll(), last = new Map();
+  a.forEach(e => { if (e.type === 'status' || e.type === 'correction') last.set(e.tracker + '|' + e.habit + '|' + e.date, e.to); else if (e.type === 'period_reset') for (const k of [...last.keys()]) if (k.startsWith(e.tracker + '|')) last.delete(k); });
+  let base = 0, diff = 0;
+  for (const p of pds) { if (p.kind === 'c') continue; for (const h of p.habits) for (let i = 0; i < nDays(p); i++) { const v = get(p, h.id, i), k = p.id + '|' + h.id + '|' + pd(p, i);
+    if (last.has(k)) { if ((last.get(k) ?? undefined) !== v) { diff++; if (diff <= 10) issues.push(shortTitle(p) + ' ' + pd(p, i) + ': stored status differs from the latest audit event'); } } else if (v !== undefined) base++; } }
+  info.push('Storage: ' + (db ? 'IndexedDB (version ' + curVer + ') with localStorage mirror' : 'localStorage fallback only'), 'Recorded cells: ' + cells(S), 'Audit events: ' + a.length, 'Records with no audit event (made before the audit log began, or in the 32-day period): ' + base);
+  return { issues, info, audit: a };
+}
+async function renderIntegrity() {
+  $('ibody').innerHTML = '<p class="mu">Checking…</p>';
+  try {
+    const r = await integrity(), sn = await listSnaps();
+    $('ibody').innerHTML = '<h3>Storage</h3>' + r.info.map(x => `<div class="sm"><span>${esc(x)}</span></div>`).join('') +
+      '<h3>Checks</h3>' + (r.issues.length ? r.issues.map(x => `<div class="sm"><span style="color:var(--no)">${esc(x)}</span></div>`).join('') + '<p class="mu">Nothing was changed automatically. Restore a snapshot or import a backup to recover.</p>' : '<div class="sm"><span>No problems found.</span></div>') +
+      '<h3>Recent activity</h3>' + (r.audit.slice(-12).reverse().map(e => `<div class="sm"><span>${esc(e.ts.slice(0, 16).replace('T', ' ') + ' · ' + e.type + (e.habitName ? ' · ' + e.habitName : '') + (e.date ? ' · ' + e.date : '') + ('from' in e ? ' · ' + (e.from ?? '–') + ' → ' + (e.to ?? '–') : ''))}</span></div>`).join('') || '<p class="mu">No events yet.</p>') +
+      '<h3>Snapshots</h3>' + (sn.slice(0, 8).map(x => `<div class="sm"><span>${esc(x.ts.slice(0, 16).replace('T', ' ') + ' · ' + x.reason)}</span><button class="btn" data-s="${x.id}">Restore</button></div>`).join('') || '<p class="mu">None yet. A snapshot is taken before restores, resets and deletions.</p>');
+    window._snaps = sn;
+  } catch (e) { $('ibody').innerHTML = '<p style="color:var(--no)">Check failed: ' + esc(e.message) + '</p>'; }
+}
+
+function vh(arr) {
+  if (!Array.isArray(arr) || arr.length !== 10) return null; const ids = new Set();
+  for (const h of arr) { if (!h || typeof h.id !== 'string' || typeof h.name !== 'string' || !h.id || ids.has(h.id)) return null; ids.add(h.id); }
+  return arr.map(h => ({ id: h.id, name: h.name.slice(0, 80) }));
+}
+function vp(p, kind) {
+  if (!p) return null; const habits = vh(p.habits); if (!habits) return null;
+  if (kind === 'm' ? !YM.test(p.id) : !validDate(p.start)) return null;
+  const lim = kind === 'm' ? dim(p.id) : 32, rec = {};
+  for (const id of Object.keys(p.rec || {})) {
+    if (!habits.some(h => h.id === id)) continue; rec[id] = {};
+    for (const [i, v] of Object.entries(p.rec[id] || {})) { if (!/^\d+$/.test(i) || +i >= lim || (v !== 0 && v !== 1)) return null; rec[id][i] = v; }
+  }
+  return kind === 'm' ? { kind: 'm', id: p.id, habits, rec } : customOf(p.start, habits, rec);
+}
+const MAXD = 366;
+function vt(t) {
+  if (!t || typeof t.id !== 'string' || !t.id || typeof t.name !== 'string' || !t.name.trim() || !validDate(t.start) || !Number.isInteger(t.days) || t.days < 1 || t.days > MAXD) return null;
+  const habits = vh(t.habits); if (!habits) return null; const rec = {};
+  for (const id of Object.keys(t.rec || {})) { if (!habits.some(h => h.id === id)) continue; rec[id] = {}; for (const [i, v] of Object.entries(t.rec[id] || {})) { if (!/^\d+$/.test(i) || +i >= t.days || (v !== 0 && v !== 1)) return null; rec[id][i] = v; } }
+  return { kind: 't', id: t.id, name: t.name.trim().slice(0, 40), cal: t.cal === 'BS' ? 'BS' : 'AD', mode: t.mode === 'month' ? 'month' : 'custom', start: t.start, days: t.days, habits, rec, status: t.status === 'archived' ? 'archived' : 'active', created: typeof t.created === 'string' ? t.created : '' };
+}
+function valid(o) {
+  if (!o || typeof o !== 'object') return null;
+  const habits = vh(o.habits), custom = vp(o.custom, 'c'); if (!habits || !custom) return null;
+  const months = {};
+  for (const [k, m] of Object.entries(o.months || {})) { const v = m && m.id === k ? vp(m, 'm') : null; if (!v) return null; months[k] = v; }
+  const trackers = [], tids = new Set();
+  for (const t of (Array.isArray(o.trackers) ? o.trackers : [])) { const v = vt(t); if (!v || tids.has(v.id)) return null; tids.add(v.id); trackers.push(v); }
+  const okv = v => v === null || v === 'custom' || YM.test(v) || (typeof v === 'string' && v.startsWith('tr:') && tids.has(v.slice(3)));
+  if (!okv(o.view ?? null) || !(o.lastYm == null || YM.test(o.lastYm))) return null;
+  return { v: 2, view: o.view ?? null, lastYm: o.lastYm ?? null, rev: typeof o.rev === 'number' ? o.rev : CONFIG.rev, habits, months, custom, trackers, cal: o.cal === 'BS' ? 'BS' : 'AD', saved: typeof o.saved === 'number' ? o.saved : 0 };
+}
+function load(idbRec) {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) { S = valid(JSON.parse(raw)); if (!S) { try { localStorage.setItem('habit32.corrupt.' + Date.now(), raw); } catch (x) {} showErr('Saved data failed validation; a copy was kept. Import a backup to recover.'); } }
+    else { const old = localStorage.getItem(OLD); if (old) { const o = JSON.parse(old); const c = vp({ start: o.start, habits: o.habits, rec: o.rec }, 'c'); if (c) { S = fresh(); S.custom = c; S.view = 'custom'; } } }
+  } catch (e) { showErr('Could not read saved data: ' + e.message); }
+  if (idbRec) { try { const v = valid(idbRec.data); if (v && (!S || v.saved >= S.saved)) S = v; } catch (e) {} }
+  if (!S) S = fresh();
+  tick(true);
+  if (S.rev !== CONFIG.rev) {
+    S.habits = clone(CONFIG.habits); S.custom.habits = clone(CONFIG.habits);
+    if (S.months[curYm()]) S.months[curYm()].habits = clone(CONFIG.habits);
+    S.rev = CONFIG.rev; save();
+  }
+}
+// Month transition: runs on load, on timer, on focus/visibility.
+function tick(silent) {
+  const cur = curYm();
+  if (cur !== S.lastYm || !S.months[cur]) {
+    const follow = S.view == null || S.view === S.lastYm;
+    if (!S.months[cur]) S.months[cur] = { kind: 'm', id: cur, habits: clone(S.habits), rec: {} };
+    A(ev('month_created', S.months[cur], { month: cur })); S.lastYm = cur; if (follow) S.view = cur; save();
+    if (!silent) render();
+  }
+}
+const getMonth = ym => S.months[ym] || { kind: 'm', id: ym, habits: clone(S.habits), rec: {} };
+const commit = p => { if (p.kind === 'm' && !S.months[p.id]) S.months[p.id] = p; };
+const nDays = p => p.kind === 'm' ? dim(p.id) : p.kind === 't' ? p.days : 32;
+const pd = (p, i) => p.kind === 'm' ? p.id + '-' + pad(i + 1) : addDays(p.start, i);
+const phase = (p, i) => { const d = pd(p, i), t = today(); return d < t ? 'past' : d === t ? 'today' : 'future'; };
+const get = (p, id, i) => (p.rec[id] || {})[i];
+const archived = p => p.kind === 'm' && p.id < curYm();
+const editable = p => !archived(p) || editOn;
+const hasData = p => Object.values(p.rec).some(r => Object.keys(r).length);
+function setHabits(p, arr) { p.habits = arr; commit(p); if (p.kind === 'm' && p.id === curYm()) S.habits = clone(arr); }
+
+function calc(p) {
+  const N = nDays(p), days = [], hab = p.habits.map(h => ({ id: h.id, name: h.name, c: 0, r: 0 }));
+  let cc = 0, rr = 0;
+  for (let i = 0; i < N; i++) {
+    const ph = phase(p, i); let c = 0, r = 0;
+    if (ph !== 'future') p.habits.forEach((h, k) => { const v = get(p, h.id, i); if (v === 1 || v === 0) { r++; hab[k].r++; if (v === 1) { c++; hab[k].c++; } } });
+    cc += c; rr += r; days.push({ i, p: ph, c, r, pct: r ? c / r * 100 : null, full: ph !== 'future' && c === 10 });
+  }
+  let longest = 0, run = 0; days.forEach(d => { run = d.full ? run + 1 : 0; longest = Math.max(longest, run); });
+  let cur = 0, k = days.findLastIndex(d => d.p !== 'future');
+  if (k >= 0 && days[k].p === 'today' && !days[k].full) k--;
+  while (k >= 0 && days[k].full) { cur++; k--; }
+  const el = days.filter(d => d.p !== 'future').length, hf = Math.floor(N / 2);
+  const half = (a, b) => { let c = 0, r = 0; days.slice(a, b).forEach(d => { c += d.c; r += d.r; }); return { c, r, pct: r ? c / r * 100 : null }; };
+  const rated = hab.filter(x => x.r).map(x => ({ n: x.name, p: x.c / x.r * 100 }));
+  return { days, hab, cc, rr, longest, cur, el, N, hf, unrec: el * 10 - rr, withData: days.filter(d => d.r).length, full: days.filter(d => d.full).length,
+    pct: rr ? cc / rr * 100 : null, h1: half(0, hf), h2: half(hf, N),
+    best: rated.length ? rated.reduce((a, b) => b.p > a.p ? b : a) : null, low: rated.length ? rated.reduce((a, b) => b.p < a.p ? b : a) : null };
+}
+const hist = () => Object.keys(S.months).sort().map(k => ({ k, m: calc(S.months[k]) })).filter(x => x.m.rr > 0 || x.k === curYm());
+
+function monthOpts() {
+  const set = new Set(Object.keys(S.months)); const c = curYm();
+  [c, ymAdd(c, 1), ymAdd(c, 2)].forEach(k => set.add(k)); if (YM.test(S.view || '')) set.add(S.view);
+  return [...set].sort();
+}
+const I = {
+ overview: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+ tracker: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+ performance: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',
+ history: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+ settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>' };
+const NAV = [['overview', 'Overview'], ['tracker', 'Habit Tracker'], ['performance', 'Performance'], ['history', 'Monthly History'], ['settings', 'Settings']];
+let page = (location.hash || '').slice(1); if (!NAV.some(n => n[0] === page) || page === 'settings') page = 'overview';
+let dismissed = '';
+function showPage() {
+  document.querySelectorAll('.pg').forEach(x => x.hidden = x.dataset.pg !== page);
+  document.querySelectorAll('.nv').forEach(b => { b.classList.toggle('on', b.dataset.p === page); b.setAttribute('aria-current', b.dataset.p === page ? 'page' : 'false'); });
+  $('title').textContent = NAV.find(n => n[0] === page)[1];
+  Object.values(CH).forEach(c => c.resize());
+}
+function cellBtn(hb, i, ok) {
+  const ph = phase(P, i), v = get(P, hb.id, i), cls = v === 1 ? 'y' : v === 0 ? 'n' : '', t = v === 1 ? '✓' : v === 0 ? '✗' : '–';
+  const st = v === 1 ? 'completed' : v === 0 ? 'not completed' : 'not recorded';
+  return `<button class="c ${cls}" data-h="${hb.id}" data-i="${i}" title="${st}" ${ph === 'future' || !ok ? 'disabled' : ''} aria-label="${esc(hb.name)}, ${pd(P, i)}: ${st}">${t}</button>`;
+}
+function render() {
+  P = getP(); M = calc(P);
+  const isM = P.kind === 'm', c = curYm(), ok = editable(P), cu = P.kind === 'c';
+  chrome(c);
+  const ban = $('ban'); ban.style.display = 'none';
+  if (archived(P)) { ban.style.display = 'flex'; ban.innerHTML = (editOn ? '<span>Editing an archived month. Corrections update its statistics.</span>' : '<span>Archived month: read-only.</span>') + `<button class="btn" id="lockb">${editOn ? 'Lock again' : 'Enable editing'}</button>`; }
+  else if (isM && P.id > c) { ban.style.display = 'flex'; ban.innerHTML = '<span>Future month: days unlock as they arrive.</span>'; }
+
+  let h = '<thead><tr><th class="h">' + esc(shortTitle(P)) + '</th>';
+  for (let i = 0; i < M.N; i++) { const ph = phase(P, i);
+    h += `<th class="d ${ph}${cu ? ' dd' : ''}"><div class="dn">${i + 1}${ph === 'today' ? '<span class="mu"> ·</span>' : ''}</div>` + (!cu ? `<div class="dm">${dshort(pd(P, i))}</div>` : `<input type="date" value="${pd(P, i)}" data-d="${i}" aria-label="Date for day ${i + 1}">`) + '</th>'; }
+  h += '</tr></thead><tbody>';
+  P.habits.forEach(hb => { h += `<tr><td class="h">${esc(hb.name)}</td>`; for (let i = 0; i < M.N; i++) h += `<td class="${phase(P, i)}">${cellBtn(hb, i, ok)}</td>`; h += '</tr>'; });
+  $('tbl').innerHTML = h + '</tbody>';
+
+  // overview
+  const dd = M.days.filter(d => d.p !== 'future' && d.r), ag = a => { let x = 0, y = 0; a.forEach(d => { x += d.c; y += d.r; }); return y ? x / y * 100 : null; };
+  const rc = ag(dd.slice(-7)), pv = ag(dd.slice(-14, -7));
+  $('big').textContent = M.pct == null ? 'No data' : M.pct.toFixed(0) + '%';
+  $('trend').textContent = rc != null && pv != null ? (rc - pv >= 0 ? '▲ +' : '▼ ') + (rc - pv).toFixed(1) + ' pts vs the previous 7 recorded days' : 'Trend appears after two weeks of records';
+  $('kpis').innerHTML = [['Current streak', M.cur + (M.cur === 1 ? ' day' : ' days'), 'longest ' + M.longest], ['Full days', M.full, 'of ' + M.el + ' elapsed'], ['Coverage', M.el ? (M.rr / (M.el * 10) * 100).toFixed(0) + '%' : '–', M.rr + ' habits recorded']]
+    .map(k => `<div><span class="lb">${k[0]}</span><b>${k[1]}</b><span class="mu">${k[2]}</span></div>`).join('');
+  const ti = M.days.find(d => d.p === 'today'); let act = null;
+  if (ti) { const un = P.habits.filter(x => get(P, x.id, ti.i) === undefined).length; if (un) act = { k: 'rec' + today(), t: 'Record today', d: un + ' of 10 habits are unrecorded.', b: 'Open tracker', g: 'tracker' }; }
+  if (!act) { const w = M.hab.filter(x => x.r >= 3).sort((a, b) => a.c / a.r - b.c / b.r)[0]; if (w && w.c / w.r < 0.8) act = { k: 'w' + w.id + w.c + w.r, t: 'Review your weakest habit', d: w.name + ' is at ' + (w.c / w.r * 100).toFixed(0) + '% (' + w.c + ' of ' + w.r + ').', b: 'See performance', g: 'performance' }; }
+  const A = $('act'); A.hidden = !act || dismissed === act.k;
+  if (act) A.innerHTML = `<div><b>${act.t}</b><span class="mu">${act.d}</span></div><div class="ctl"><button class="btn pri" data-go="${act.g}">${act.b}</button><button class="btn" data-x="${act.k}">Dismiss</button></div>`;
+  $('quick').innerHTML = ti ? P.habits.map(x => `<div class="qr"><span>${esc(x.name)}</span>${cellBtn(x, ti.i, ok)}</div>`).join('') : '<p class="mu">Today is not part of this period. Use the period selector to return to the current month.</p>';
+
+  // performance
+  const rk = M.hab.map(x => ({ ...x, p: x.r ? x.c / x.r * 100 : null })).sort((a, b) => (b.p ?? -1) - (a.p ?? -1));
+  $('rank').innerHTML = rk.map(x => `<div class="rk${x.p != null && x.p < 60 ? ' low' : ''}" title="${x.c} completed, ${x.r - x.c} missed"><span class="nm">${esc(x.name)}</span><span class="bar"><i style="width:${x.p ?? 0}%"></i></span><b>${x.p == null ? '–' : x.p.toFixed(0) + '%'}</b><span class="mu">${x.c}/${x.r}</span></div>`).join('');
+  $('sum').innerHTML = [['Completed', M.cc], ['Missed', M.rr - M.cc], ['Unrecorded (elapsed days)', M.unrec], ['Fully completed days', M.full], ['Current streak', M.cur + ' d'], ['Longest streak', M.longest + ' d']].map(x => `<div class="sm"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('') + `<div class="sm" style="display:block"><div style="display:flex;justify-content:space-between"><span>Target progress</span><b>${M.el} of ${M.N} days</b></div><div class="bar" style="margin-top:8px"><i style="width:${M.N ? M.el / M.N * 100 : 0}%"></i></div></div>`;
+  let t = `First half (days 1–${M.hf}): ${fmt(M.h1.pct)} · second half: ${fmt(M.h2.pct)}. `;
+  if (M.h1.r && M.h2.r) { const d = M.h2.pct - M.h1.pct; t += Math.abs(d) < 0.05 ? 'Unchanged.' : (d > 0 ? 'Improved by ' : 'Declined by ') + Math.abs(d).toFixed(1) + ' points.'; } else t += 'Not enough data in both halves.';
+  $('half').textContent = t;
+  renderHist(); drawCharts(); showPage();
+}
+function renderHist() {
+  const rows = hist(); let prev = null;
+  $('mtbl').innerHTML = '<thead><tr><th class="h">Month</th><th>Rate</th><th>Change</th><th>Best habit</th><th>Lowest habit</th><th>Full days</th><th>Recorded</th></tr></thead><tbody>' +
+    rows.map(({ k, m }) => { const d = prev != null && m.pct != null ? m.pct - prev : null; if (m.pct != null) prev = m.pct;
+      return `<tr><td class="h">${label(k)}</td><td>${fmt(m.pct)}</td><td>${d == null ? '–' : (d >= 0 ? '+' : '') + d.toFixed(1) + ' pts'}</td><td>${m.best ? esc(m.best.n) + ' (' + m.best.p.toFixed(0) + '%)' : '–'}</td><td>${m.low ? esc(m.low.n) + ' (' + m.low.p.toFixed(0) + '%)' : '–'}</td><td>${m.full}</td><td>${m.rr}</td></tr>`; }).join('') + '</tbody>';
+  const sum = list => { let c = 0, r = 0, f = 0; list.forEach(x => { c += x.m.cc; r += x.m.rr; f += x.m.full; }); return { c, r, f, p: r ? c / r * 100 : null, n: list.length }; };
+  const y = curYm().slice(0, 4), a = sum(rows), b = sum(rows.filter(x => x.k.startsWith(y)));
+  $('agg').innerHTML = [['Year to date (' + y + ')', b], ['All time', a]].map(([t, s]) => `<div class="stat"><span class="lb">${t}</span><b>${fmt(s.p)}</b><span class="mu">${s.c} done · ${s.r} recorded · ${s.f} full days · ${s.n} month${s.n === 1 ? '' : 's'}</span></div>`).join('');
+  const opts = rows.map(x => `<option value="${x.k}">${label(x.k)}</option>`).join('');
+  $('ca').innerHTML = opts; $('cb').innerHTML = opts;
+  const ks = rows.map(x => x.k); if (!ks.includes(cmpA)) cmpA = ks[Math.max(0, ks.length - 2)]; if (!ks.includes(cmpB)) cmpB = ks[ks.length - 1];
+  $('ca').value = cmpA; $('cb').value = cmpB;
+  const A = rows.find(x => x.k === cmpA), B = rows.find(x => x.k === cmpB);
+  $('cmp').textContent = !A || !B ? '' : label(A.k) + ': ' + fmt(A.m.pct) + ' vs ' + label(B.k) + ': ' + fmt(B.m.pct) + (A.m.pct != null && B.m.pct != null ? ' (' + (B.m.pct - A.m.pct >= 0 ? '+' : '') + (B.m.pct - A.m.pct).toFixed(1) + ' percentage points)' : ' (cannot compare: one month has no data)');
+  window._rows = rows;
+}
+
+let CH = {};
+function mk(id, type, data, opts) {
+  if (CH[id]) { CH[id].data = data; CH[id].update('none'); return; }
+  CH[id] = new Chart($(id), { type, data, options: Object.assign({ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } } }, opts) });
+}
+function drawCharts() {
+  if (!window.Chart) return;
+  const cs = getComputedStyle(document.documentElement), ac = cs.getPropertyValue('--ac').trim() || '#1f5c45';
+  Chart.defaults.color = cs.getPropertyValue('--mu').trim(); Chart.defaults.borderColor = cs.getPropertyValue('--bd').trim();
+  Chart.defaults.font.family = 'Inter, system-ui, sans-serif'; Chart.defaults.font.size = 12;
+  const lb = M.days.map(d => (d.i + 1) + ' · ' + pd(P, d.i).slice(5));
+  const grid = { grid: { drawBorder: false } };
+  mk('c1', 'line', { labels: lb, datasets: [{ data: M.days.map(d => d.pct), borderColor: ac, backgroundColor: ac, spanGaps: false, pointRadius: 3, borderWidth: 2 }] },
+    { scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' }, ...grid }, x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } } },
+      plugins: { legend: { display: false }, title: { display: true, text: 'Daily completion rate', align: 'start' }, tooltip: { callbacks: { title: it => pd(P, it[0].dataIndex), label: it => { const d = M.days[it.dataIndex]; return d.c + ' of ' + d.r + ' completed · ' + d.pct.toFixed(1) + '%'; } } } } });
+  let run = 0;
+  mk('c3', 'line', { labels: lb, datasets: [{ data: M.days.map(d => d.p === 'future' ? null : (run += d.c)), borderColor: ac, backgroundColor: ac, pointRadius: 0, borderWidth: 2 }] },
+    { scales: { y: { min: 0, ticks: { precision: 0 }, ...grid }, x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } } } });
+  const rows = window._rows;
+  mk('c4', 'bar', { labels: rows.map(x => label(x.k)), datasets: [{ data: rows.map(x => x.m.pct == null ? null : +x.m.pct.toFixed(1)), backgroundColor: ac, borderRadius: 4, maxBarThickness: 56 }] },
+    { scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' }, ...grid }, x: { grid: { display: false } } },
+      plugins: { legend: { display: false }, title: { display: true, text: 'Monthly completion rate', align: 'start' }, tooltip: { callbacks: { label: it => fmt(it.parsed.y) } } } });
+}
+
+function go(v) { S.view = v; editOn = false; save(); render(); }
+$('sel').onchange = e => { if (e.target.value) go(e.target.value); };
+$('ban').onclick = e => { if (e.target.id === 'lockb') { editOn = !editOn; render(); } };
+$('ca').onchange = e => { cmpA = e.target.value; renderHist(); };
+$('cb').onchange = e => { cmpB = e.target.value; renderHist(); };
+['tbl', 'quick'].forEach(id => $(id).addEventListener('click', e => {
+  const b = e.target.closest('.c'); if (!b || b.disabled || !editable(P)) return;
+  const id = b.dataset.h, i = b.dataset.i, v = get(P, id, i); P.rec[id] = P.rec[id] || {};
+  if (v === undefined) P.rec[id][i] = 1; else if (v === 1) P.rec[id][i] = 0; else delete P.rec[id][i];
+  A(ev(archived(P) ? 'correction' : 'status', P, { habit: id, habitName: P.habits.find(h => h.id === id).name, date: pd(P, i), from: v ?? null, to: P.rec[id][i] ?? null })); commit(P); save(); render();
+}));
+function setStart(ns) {
+  const c = S.custom; if (!validDate(ns) || ns === c.start) { render(); return; }
+  if (hasData(c) && !confirm('Move all recorded results to the new dates? Day 1 becomes ' + ns + '.')) { render(); return; }
+  A(ev('start_change', c, { from: c.start, to: ns })); c.start = ns; save(); render();
+}
+$('tbl').addEventListener('change', e => { if (e.target.dataset.d !== undefined) setStart(addDays(e.target.value, -e.target.dataset.d)); });
+$('start').onchange = e => setStart(e.target.value);
+
+const nid = () => 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const drawList = () => {
+  $('dt').textContent = shortTitle(P);
+  $('hl').innerHTML = P.habits.map((h, k) => `<div class="hr"><span class="mu">${k + 1}</span><input type="text" value="${esc(h.name)}" maxlength="80" data-k="${k}" aria-label="Habit ${k + 1} name"><button class="btn" data-up="${k}" aria-label="Move up">↑</button><button class="btn" data-dn="${k}" aria-label="Move down">↓</button><button class="btn" data-new="${k}">New</button></div>`).join('');
+};
+const guard = () => { if (editable(P)) return true; alert('This month is archived and read-only. Close settings and press “Enable editing” first.'); drawList(); return false; };
+$('hl').addEventListener('change', e => { const k = e.target.dataset.k; if (k === undefined || !guard()) return; const n = e.target.value.trim(); if (!n) { drawList(); return; } const a = clone(P.habits); const old = P.habits[k].name; a[k].name = n; setHabits(P, a); A(ev('habit_rename', P, { habit: a[k].id, from: old, to: n })); save(); render(); });
+$('hl').addEventListener('click', e => {
+  const d = e.target.dataset; if (!Object.keys(d).length || !guard()) return; const a = clone(P.habits); let x;
+  if (d.up !== undefined && +d.up > 0) { const k = +d.up; x = ev('habit_reorder', P, { habit: a[k].id, from: k + 1, to: k }); [a[k - 1], a[k]] = [a[k], a[k - 1]]; }
+  else if (d.dn !== undefined && +d.dn < 9) { const k = +d.dn; x = ev('habit_reorder', P, { habit: a[k].id, from: k + 1, to: k + 2 }); [a[k + 1], a[k]] = [a[k], a[k + 1]]; }
+  else if (d.new !== undefined) { const k = +d.new, n = prompt('Replace “' + a[k].name + '” with a different habit (starts with empty history). New name:'); if (!n || !n.trim()) return; const o = a[k]; a[k] = { id: nid(), name: n.trim().slice(0, 80) }; x = ev('habit_replace', P, { habit: a[k].id, from: o.name + ' (' + o.id + ')', to: a[k].name }); }
+  else return;
+  A(x); setHabits(P, a); save(); drawList(); render();
+});
+$('cls').onclick = () => $('dlg').close();
+$('defs').onclick = () => { if (guard() && confirm('Restore default habits for this period?')) { A(ev('habits_restore_defaults', P, {})); setHabits(P, clone(CONFIG.habits)); save(); drawList(); render(); } };
+$('rst').onclick = () => { if (guard() && confirm('Reset all records in ' + $('dt').textContent + '? Other months are not affected.')) { const p0 = P; snap('pre-reset').then(() => { A(ev('period_reset', p0, { clearedCells: cells({ months: {}, custom: { rec: {} }, trackers: [p0] }) })); p0.rec = {}; commit(p0); save(); render(); }).catch(e => alert('Reset cancelled: a safety snapshot could not be saved (' + e.message + ').')); } };
+$('exp').onclick = async () => {
+  try { const b = await buildBackup(); A(ev('backup_export', null, b.counts)); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(b, null, 2)], { type: 'application/json' })); a.download = 'habit-os-backup-' + today() + '.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); save(); }
+  catch (e) { alert('Export failed: ' + e.message); }
+};
+$('imp').onchange = e => {
+  const f = e.target.files[0]; if (!f) return; const r = new FileReader();
+  r.onload = async () => { try { const pb = parseBackup(r.result), c = counts(pb.st, pb.audit.length); if (!confirm('Restore backup exported ' + pb.exported + '?\n' + c.months + ' months, ' + c.trackers + ' trackers, ' + c.recordedCells + ' recorded cells, ' + c.auditEvents + ' audit events.\nYour current data is snapshotted first and can be recovered from the integrity panel.')) return; await restore(pb, 'import'); } catch (x) { alert('Import failed: ' + x.message + '. Nothing was changed.'); } };
+  r.readAsText(f); e.target.value = '';
+};
+// ---- Calendars (BS via nepali-date-converter 3.4.0; disabled if self-check fails) ----
+const BSM = ['Baisakh', 'Jestha', 'Asar', 'Shrawan', 'Bhadra', 'Aswin', 'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra'];
+const ND = () => { const g = window.NepaliDate; return g && (g.default || g); };
+const adToBs = x => { const N = ND(), n = new N(new Date(+x.slice(0, 4), +x.slice(5, 7) - 1, +x.slice(8, 10), 12)); return { y: n.getYear(), m: n.getMonth(), d: n.getDate() }; };
+function bsToAd(y, m, d) {
+  const N = ND(), j = new N(y, m, d).toJsDate();
+  for (const x of [j.getFullYear() + '-' + pad(j.getMonth() + 1) + '-' + pad(j.getDate()), iso(j)]) { const b = adToBs(x); if (b.y === y && b.m === m && b.d === d) return x; }
+  throw new Error('Invalid BS date');
+}
+const bsMonthLen = (y, m) => { const a = bsToAd(y, m, 1), b = m === 11 ? bsToAd(y + 1, 0, 1) : bsToAd(y, m + 1, 1); return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 864e5); };
+let bsOK = false;
+try { bsOK = bsToAd(2078, 8, 22) === '2022-01-06' && bsToAd(2080, 0, 1) === '2023-04-14' && adToBs('2022-01-06').m === 8; } catch (e) { bsOK = false; }
+const eff = p => (p.kind === 't' ? p.cal : S.cal) === 'BS' && bsOK ? 'BS' : 'AD';
+function dfull(x, cal) { if (cal === 'BS') { try { const b = adToBs(x); return b.y + ' ' + BSM[b.m] + ' ' + b.d; } catch (e) {} } return x; }
+function dshort(x) { if (eff(P) === 'BS') { try { const b = adToBs(x); return BSM[b.m].slice(0, 3) + ' ' + b.d; } catch (e) {} } return x.slice(5); }
+const shortTitle = p => p.kind === 't' ? p.name : p.kind === 'm' ? label(p.id) : '32-day custom';
+function periodTitle(p) {
+  const cal = eff(p), f = pd(p, 0), l = pd(p, nDays(p) - 1);
+  if (p.kind === 't') return p.name + ' · ' + cal;
+  if (cal === 'BS') { try { const a = adToBs(f), b = adToBs(l); return BSM[a.m] + (a.m !== b.m ? '–' + BSM[b.m] : '') + ' ' + b.y + ' · BS'; } catch (e) {} }
+  return shortTitle(p) + ' · AD';
+}
+function getP() {
+  if (S.view === 'custom') return S.custom;
+  if (typeof S.view === 'string' && S.view.startsWith('tr:')) { const t = S.trackers.find(x => x.id === S.view.slice(3)); if (t) return t; S.view = curYm(); }
+  return getMonth(S.view);
+}
+function chrome(c) {
+  const cal = eff(P), n = M.N;
+  $('sub').textContent = periodTitle(P) + ' · ' + n + ' days · ' + dfull(pd(P, 0), cal) + ' → ' + dfull(pd(P, n - 1), cal) + (P.kind === 'm' ? (P.id === c ? ' · current' : P.id < c ? ' · archived' : ' · future') : P.status === 'archived' ? ' · archived' : '');
+  const key = S.view, list = [c, 'custom', ...S.trackers.filter(t => t.status !== 'archived').map(t => 'tr:' + t.id)]; if (!list.includes(key)) list.push(key);
+  $('tabs').innerHTML = list.map(k => { const p = k === 'custom' ? S.custom : k.startsWith('tr:') ? S.trackers.find(t => t.id === k.slice(3)) : getMonth(k); return p ? `<button class="tab${k === key ? ' on' : ''}" role="tab" aria-selected="${k === key}" data-v="${k}">${esc(periodTitle(p))}</button>` : ''; }).join('');
+  const ms = new Set(Object.keys(S.months)); [ymAdd(c, 1), ymAdd(c, 2)].forEach(k => ms.add(k)); ms.delete(c);
+  const ar = S.trackers.filter(t => t.status === 'archived');
+  $('sel').innerHTML = '<option value="">More…</option><optgroup label="Months">' + [...ms].sort().reverse().map(k => `<option value="${k}">${label(k)}</option>`).join('') + '</optgroup>' + (ar.length ? '<optgroup label="Archived trackers">' + ar.map(t => `<option value="tr:${t.id}">${esc(t.name)}</option>`).join('') + '</optgroup>' : '');
+  $('sel').value = ''; $('start').value = S.custom.start;
+  $('calseg').querySelectorAll('button').forEach(b => { b.classList.toggle('on', b.dataset.cal === cal); b.disabled = b.dataset.cal === 'BS' && !bsOK; b.title = b.disabled ? 'BS calendar data did not load or failed its self-check' : ''; });
+}
+$('calseg').onclick = e => { const b = e.target.closest('button'); if (!b || b.disabled) return; if (P.kind === 't') P.cal = b.dataset.cal; else S.cal = b.dataset.cal; A(ev('calendar_display', P, { to: b.dataset.cal })); save(); render(); };
+$('tabs').onclick = e => { const b = e.target.closest('.tab'); if (b) go(b.dataset.v); };
+
+// ---- Create tracker ----
+let cc = { cal: 'AD', mode: 'custom' };
+function fillDays(sel) { try { const n = bsMonthLen(+$('bsy').value, +$('bsm').value); $('bsd').innerHTML = Array.from({ length: n }, (_, i) => `<option>${i + 1}</option>`).join(''); $('bsd').value = Math.min(sel || 1, n); } catch (e) { $('bsd').innerHTML = ''; } }
+function fillBs() {
+  if (!bsOK) { ['bsy', 'bsm', 'bsd'].forEach(i => $(i).innerHTML = ''); return; }
+  const t = adToBs(today());
+  $('bsy').innerHTML = [t.y - 1, t.y, t.y + 1, t.y + 2].map(y => `<option>${y}</option>`).join(''); $('bsy').value = t.y;
+  $('bsm').innerHTML = BSM.map((n, i) => `<option value="${i}">${n}</option>`).join(''); $('bsm').value = t.m; fillDays(t.d);
+}
+function compute() {
+  let start, days, auto = '';
+  if (cc.cal === 'AD') {
+    if (cc.mode === 'month') { const v = $('adm').value; if (!YM.test(v)) throw new Error('Choose a month.'); start = v + '-01'; days = dim(v); auto = label(v) + ' · AD'; }
+    else { start = $('adi').value; if (!validDate(start)) throw new Error('Choose a valid AD start date.'); }
+  } else {
+    if (!bsOK) throw new Error('BS calendar data did not load. Use AD or reload the page.');
+    const y = +$('bsy').value, m = +$('bsm').value;
+    if (cc.mode === 'month') { start = bsToAd(y, m, 1); days = bsMonthLen(y, m); auto = BSM[m] + ' ' + y + ' · BS'; } else start = bsToAd(y, m, +$('bsd').value);
+  }
+  if (cc.mode === 'custom') { const n = Number($('cd').value); if (!Number.isInteger(n) || n < 1 || n > MAXD) throw new Error('Days must be a whole number from 1 to ' + MAXD + '.'); days = n; }
+  return { start, days, auto, end: addDays(start, days - 1) };
+}
+function syncC() {
+  $('ccal').querySelectorAll('button').forEach(b => { b.classList.toggle('on', b.dataset.c === cc.cal); b.disabled = b.dataset.c === 'BS' && !bsOK; });
+  $('cmode').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === cc.mode));
+  $('fad').hidden = !(cc.cal === 'AD' && cc.mode === 'custom'); $('fadm').hidden = !(cc.cal === 'AD' && cc.mode === 'month');
+  $('fbs').hidden = cc.cal !== 'BS'; $('bsd').hidden = cc.mode === 'month'; $('fdays').hidden = cc.mode !== 'custom';
+  try { const r = compute(); $('cprev').textContent = r.days + ' days: ' + dfull(r.start, cc.cal) + ' → ' + dfull(r.end, cc.cal) + ' (' + r.start + ' → ' + r.end + ' AD)'; $('cerr').textContent = ''; } catch (e) { $('cprev').textContent = ''; }
+}
+$('add').onclick = () => { cc = { cal: 'AD', mode: 'custom' }; $('cn').value = ''; $('adi').value = today(); $('adm').value = curYm(); $('cd').value = 7; $('ch').value = P.habits.map(h => h.name).join('\n'); fillBs(); syncC(); $('cdlg').showModal(); };
+$('ccal').onclick = e => { const b = e.target.closest('button'); if (b && !b.disabled) { cc.cal = b.dataset.c; syncC(); } };
+$('cmode').onclick = e => { const b = e.target.closest('button'); if (b) { cc.mode = b.dataset.m; syncC(); } };
+['adi', 'adm', 'cd', 'bsy', 'bsm', 'bsd'].forEach(i => $(i).addEventListener('change', () => { if (i === 'bsy' || i === 'bsm') fillDays(+$('bsd').value); syncC(); }));
+$('ccan').onclick = () => $('cdlg').close();
+$('cok').onclick = () => {
+  try {
+    const r = compute(), names = $('ch').value.split('\n').map(x => x.trim()).filter(Boolean);
+    if (names.length !== 10) throw new Error('Enter exactly 10 habits, one per line (now ' + names.length + ').');
+    const t = { kind: 't', id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: ($('cn').value.trim() || r.auto || r.days + '-day tracker').slice(0, 40), cal: cc.cal, mode: cc.mode, start: r.start, days: r.days, habits: names.map(n => ({ id: nid(), name: n.slice(0, 80) })), rec: {}, status: 'active', created: today() };
+    S.trackers.push(t); A(ev('tracker_create', t, { name: t.name, cal: t.cal, mode: t.mode, start: t.start, days: t.days })); $('cdlg').close(); page = 'tracker'; go('tr:' + t.id);
+  } catch (e) { $('cerr').textContent = e.message; }
+};
+
+// ---- Tracker menu: rename / archive / delete ----
+$('more').onclick = () => {
+  $('mt').textContent = shortTitle(P);
+  $('mb').innerHTML = P.kind !== 't' ? '<p class="mu">Built-in periods (months and the 32-day custom period) cannot be renamed or deleted. Past months are archived read-only automatically.</p>'
+    : `<div class="fld"><label for="mname">Name</label><input type="text" id="mname" maxlength="40" value="${esc(P.name)}"></div><div class="row"><button class="btn" data-a="ren">Rename</button><button class="btn" data-a="arc">${P.status === 'archived' ? 'Restore' : 'Archive'}</button><button class="btn dng" data-a="del">Delete tracker</button></div>`;
+  $('mdlg').showModal();
+};
+$('mb').onclick = e => {
+  const a = e.target.dataset.a; if (!a || P.kind !== 't') return;
+  if (a === 'ren') { const n = $('mname').value.trim(); if (!n) return; A(ev('tracker_rename', P, { from: P.name, to: n.slice(0, 40) })); P.name = n.slice(0, 40); save(); $('mdlg').close(); render(); }
+  else if (a === 'arc') { P.status = P.status === 'archived' ? 'active' : 'archived'; A(ev('tracker_' + (P.status === 'archived' ? 'archive' : 'restore'), P, {})); const v = P.status === 'archived' ? curYm() : S.view; $('mdlg').close(); go(v); }
+  else if (a === 'del' && confirm('Permanently delete “' + P.name + '” and all its records? Export a backup first if unsure.')) { const p0 = P; snap('pre-delete').then(() => { A(ev('tracker_delete', p0, { name: p0.name })); S.trackers = S.trackers.filter(t => t.id !== p0.id); $('mdlg').close(); go(curYm()); }).catch(e => alert('Delete cancelled: a safety snapshot could not be saved (' + e.message + ').')); }
+};
+$('mcl').onclick = () => $('mdlg').close();
+
+$('navl').innerHTML = NAV.map(([k, l]) => `<button class="nv" data-p="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg><span>${l}</span></button>`).join('');
+$('navl').onclick = e => { const b = e.target.closest('.nv'); if (!b) return; if (b.dataset.p === 'settings') { drawList(); $('theme').value = localStorage.getItem('habit32.theme') || 'system'; $('dlg').showModal(); return; } page = b.dataset.p; history.replaceState(null, '', '#' + page); showPage(); scrollTo(0, 0); };
+$('act').onclick = e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.go) { page = b.dataset.go; showPage(); scrollTo(0, 0); } else { dismissed = b.dataset.x; $('act').hidden = true; } };
+function applyTheme(v) { const r = document.documentElement; if (v === 'light' || v === 'dark') r.dataset.theme = v; else delete r.dataset.theme; }
+applyTheme(localStorage.getItem('habit32.theme') || 'system');
+$('theme').onchange = e => { try { localStorage.setItem('habit32.theme', e.target.value); } catch (x) {} applyTheme(e.target.value); Object.values(CH).forEach(c => c.destroy()); CH = {}; render(); };
+$('retry').onclick = () => { if (window.__sv === 'conflict') location.reload(); else flush(); };
+$('chk').onclick = () => { $('idlg').showModal(); renderIntegrity(); };
+$('irun').onclick = renderIntegrity; $('icl').onclick = () => $('idlg').close();
+$('ibody').onclick = e => { const id = e.target.dataset.s; if (!id) return; const sn = (window._snaps || []).find(x => x.id === id), st = sn && valid(sn.state); if (!st) { alert('Snapshot is not valid.'); return; } if (confirm('Restore the snapshot from ' + sn.ts + '? Current data is snapshotted first.')) restore({ st, audit: [] }, 'snapshot').then(renderIntegrity).catch(x => alert('Restore failed: ' + x.message)); };
+window.addEventListener('beforeunload', e => { if (pend.length || flushing) { e.preventDefault(); e.returnValue = ''; } });
+const READY = window.indexedDB ? boot() : (load(), render(), Promise.resolve());
+setInterval(() => tick(), 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+window.addEventListener('focus', () => tick());
+</script>
+</body>
+</html>
